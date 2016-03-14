@@ -1,68 +1,265 @@
+
 #include <stdio.h>
 
 /*
 	SIMULADOR DA MAQUINA DE NORMA
-
 	As funções basicas da maquina de norma são:
 		- SOMA 1
 		- SUBTRAI 1
 		- COMPARA COM 0
+		- !
+		- A = 0
+		- A = A + X
 	Ela possui apenas números naturais, ou seja, não temos números negativos.
 Para representa-los utilizaremos uma flag "sin" que aponta se esse é ou não negativo.
 */
-#define ETZ(a) a == 0 //equals to zero
-#define print(num , sin) printf("%d", (sin == 1)? num*-1:num) //mostra o numero com ou sem o sinal de negativo
+#define ETZ(a) a == 0 											//equals to zero
+#define NOT(a) ((a == 0)? 1:0) 									//nega o valor do numero
+#define print(a) (printf("%d\n", (a.sin == 1)? a.num*-1:a.num)) 	//mostra o numero com ou sem o sinal de negativo
 
-typedef struct coto{ //coto é uma estrutura que simula um numero inteiro na maquina
-	bool sin;		//e em outra o sinal sinal que quando zero é positivo e quando não negativo
-	unsigned int  num;//onde em uma variavel temos o número
+typedef unsigned char bool;										//como C não possui o tipo boolean criamos esse atalho onde 0 = FALSO e 1 = VERDADEIRO
+
+typedef struct coto{ 											//coto é uma estrutura que simula um numero inteiro na maquina
+	bool sin;													//e em outra o sinal sinal que quando zero é positivo e quando não negativo
+	unsigned int num;											//numerador
+	unsigned int den;											//denominador
 }coto;
 
-void ADD(coto* a)
-{	
-	if((*a).sin == 0)	//Se o numero é positivo simplesmente somamos
-		(*a).num++;
-	else				//Se negativo
+int AND(int a, int  b)
+{
+	if(NOT(ETZ(a)))
+		if(NOT(ETZ(b)))
+			return 1;
+	return 0;
+}
+int  OR(int a, int b)
+{
+	if(ETZ(a))
+		if(ETZ(b))
+			return 0;
+	return 1;
+}
+
+int XOR(int a, int b)
+{
+	if(ETZ(a))
+		if(ETZ(b))
+			return 0;
+		else
+			return 1;
+	else
+		if(ETZ(b))
+			return 1;
+		else
+			return 0;
+}
+//-----------------------	OPERAÇÕES COM VARIAVEIS ------------------------
+void X_0(unsigned int* x)
+{
+	while(NOT(ETZ(*x)))
 	{
-		if((*a).num == 1)	//E o valor for -1
+		(*x)--;
+//		printf("%u\n", *x);
+	}
+}
+void  X_ADD_Y(int* x, int y)
+{
+	while(NOT(ETZ(y)))
+	{
+		(*x)++;
+		y--;
+	}
+}
+bool X_IGUAL_Y(int x, int y)									//compara dois valores naturais
+{
+	while(NOT(ETZ(x)))											//enquanto meu x não for zero
+	{
+		x--;													//decremento x
+		y--;												 	//e y
+	}
+	return ETZ(y);												//caso y seja 0 este é igual a x, pois os dois zeraram 	"ao mesmo tempo"
+}
+int X_MULT_Y(unsigned int x, unsigned int y)
+{
+	int soma=0;
+	while(NOT(ETZ(x)))
+	{
+		x--;
+		X_ADD_Y(&soma, y);
+	}
+	return soma;
+}
+//--------------------------	OPERAÇÕES COM REGISTRADORES ----------------------------
+void ADD(coto* a)
+{
+	if(ETZ((*a).sin))											//Se o numero é positivo simplesmente somamos
+		(*a).num++;
+	else														//Se negativo
+	{
+		if(NOT((*a).num))										//E o valor for -1
 		{
-			(*a).num = 0;	//subo para 0
-			(*a).sin = 0;	//e mudo sinal para positivo 
+			(*a).num--;											//subo para 0
+			(*a).sin--;											//e mudo sinal para positivo
 		}
 		else
-			(*a).num--;		//senão apenas diminuimos o valor negativo
+			(*a).num--;											//senão apenas diminuimos o valor negativo
 	}
 
 }
-
 void  SUB(coto* a)
 {
-	if((*a).sin == 0)		//Se o numero é positivo
-	{	if((*a).num == 0)	//E igual a zero
+	if(ETZ((*a).sin))											//Se o numero é positivo
+	{	if(ETZ((*a).num))										//E igual a zero
 		{
-			(*a).sin = 1;	//Mudo o sinal para negativo
-			(*a).num++;		//E incremento num representando -1.
+			(*a).sin++;											//Mudo o sinal para negativo
+			(*a).num++;											//E incremento num representando -1.
 		}
-		else				//Senão simplesmente decremento
+		else													//Senão simplesmente decremento
 			(*a).num--;
 	}
 	else
-		(*a).num++;			//Ou incremento, deacordo com o sinal
+		(*a).num++;												//Ou incremento, já que ele é negativo
+}
+void A_0(coto* a)
+{
+	X_0(&(*a).num);
+
+	if(NOT(ETZ((*a).sin)))
+		(*a).sin--;
+
+	X_0(&(*a).den);
+	(*a).den++;
+}
+void A_B(coto*a, coto* b)
+{
+	coto c = {0,0,1};
+	A_0(a);
+
+	if(ETZ(((*b).sin)))
+		while(NOT(ETZ(((*b).num))))
+		{
+			SUB(b);
+			ADD(a);
+			ADD(&c);
+		}
+	else
+		while(NOT(ETZ(((*b).num))))
+		{
+			ADD(b);
+			SUB(a);
+			SUB(&c);
+		}
 }
 
+void A_B_using_C(coto* a, coto* b)
+{
+	coto c = {0,0,1};
+	A_0(a);
 
+	if(ETZ(((*b).sin)))
+		while(NOT(ETZ(((*b).num))))
+		{
+			SUB(b);
+			ADD(a);
+			ADD(&c);
+		}
+	else
+		while(NOT(ETZ(((*b).num))))
+		{
+			ADD(b);
+			SUB(a);
+			SUB(&c);
+		}
+	A_B(b, &c);
+}
+void A_SUB_X(coto* a, int x)
+{
+	while(NOT(ETZ(x)))
+	{
+		x--;
+		SUB(a);
+	}
+}
+void A_ADD_X(coto* a, int x)
+{
+	while(NOT(x))
+	{
+		x--;
+		ADD(a);
+	}
+}
+void A_ADD_B_using_C(coto* a, coto* b)
+{
+	coto c = {0,0,1};
+	if(ETZ(((*b).sin)))
+		while(NOT(ETZ(((*b).num))))
+		{
+			SUB(b);
+			ADD(a);
+			ADD(&c);
+		}
+	else
+		while(NOT(ETZ(((*b).num))))
+		{
+			ADD(b);
+			SUB(a);
+			SUB(&c);
+		}
+	A_B(b, &c);
+}
+void A_SUB_B_using_C(coto* a, coto* b)
+{
+	coto c = {0,0,1};
+	if(ETZ(((*b).sin)))
+		while(NOT(ETZ(((*b).num))))
+		{
+			SUB(b);
+			SUB(a);
+			ADD(&c);
+		}
+	else
+		while(NOT(ETZ(((*b).num))))
+		{
+			ADD(b);
+			SUB(a);
+			SUB(&c);
+		}
+	A_B(b, &c);
+}
+
+void A_MULT_B_using_C(coto* a, coto* b)
+{
+	coto c = {0, 0, 1};
+	A_B(&c, a);
+
+	if(ETZ(((c.sin))))
+		while(NOT(ETZ((c.num))))
+		{
+			A_ADD_B_using_C(a, b);
+			SUB(&c);
+		}
+	else
+		while(NOT(ETZ(((c).num))))
+		{
+			A_SUB_B_using_C(a,b);
+			ADD(&c);
+		}
+}
+///////////////////	OPERAÇÃO COM NUMEROS RACIONAIS	///////////////////////////////
+coto ADDR(coto a, coto b) //C :=  A + B using C e D
+{
+	coto c = {0, 0, 1}, d = {0, 0, 1};
+
+	A_B(&c, &a);
+	A_B(&d, &b);
+	print(c);
+	print(d);
+}
 
 
 int main()
 {
-	coto a = {1, 3};
-
-	ADD(&a);
-	print(a.num, a.sin);
-	ADD(&a);
-	print(a.num, a.sin);
-	SUB(&a);
-	print(a.num, a.sin);
-	SUB(&a);
-	print(a.num, a.sin);
+	coto a = {1, 2, 1};
+	coto b = {1, 3, 1};
+	ADDR(a, b);
 }
