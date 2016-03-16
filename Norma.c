@@ -70,6 +70,14 @@ void  X_ADD_Y(int* x, int y)
 		y--;
 	}
 }
+void X_Y(int* x, int y)
+{
+	while(NOT(ETZ(y)))
+	{
+		(*x)++;
+		y--;
+	}
+}
 bool X_IGUAL_Y(int x, int y)									//compara dois valores naturais
 {
 	while(NOT(ETZ(x)))											//enquanto meu x não for zero
@@ -246,20 +254,30 @@ void A_MULT_B_using_C(coto* a, coto* b)
 		}
 }
 ///////////////////	OPERAÇÃO COM NUMEROS RACIONAIS	///////////////////////////////
+coto MULTR(coto a, coto b)
+{
+	coto c = {0, 0, 0};
+	X_Y(&(c.num), X_MULT_Y(a.num, b.num));
+	X_Y(&(c.den), X_MULT_Y(a.den, b.den));
+	
+	if(XOR(a.sin, b.sin))
+		c.sin = 1;
+	return c;
+}
 coto ADDR(coto a, coto b) //C :=  A + B using C e D
 {
-	coto c = {0, 0, 1}, d = {0, 0, 1};
-
-	A_B(&c, &a);
-	A_B(&d, &b);
-	print(c);
-	print(d);
+	coto c = {0, X_ADD_Y(X_MULT_Y(a.num, b.num), X_MULT_Y(a.den, b.num)), X_MULT_Y(a.den, b.den)};
+	
+	
+	
 }
 
 
 int main()
 {
 	coto a = {1, 2, 1};
-	coto b = {1, 3, 1};
-	ADDR(a, b);
+	coto b = {0, 3, 1};
+	coto c = MULTR(a, b);
+	
+	print(c);
 }
