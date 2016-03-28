@@ -7,6 +7,8 @@ Q0 a  a D a0
 Q0 \0 \0 E a1
 */
 
+
+
 void gerarArq()
 {
 	FILE* arq = fopen("exemplo1.txt", "wt");
@@ -56,10 +58,49 @@ void gerarArq()
 	}
 	fclose(arq);	
 }
+FILE* maquina(int maq)
+{
+	FILE* arq;
+	switch(maq)
+	{
+		case 1:
+			arq = fopen("exemplo1.txt", "rt");
+		break;
+		
+		case 2:
+			arq = fopen("exemplo2.txt", "rt");
+		break;
+		case 3:
+			arq = fopen("exemplo3.txt", "rt");
+		break;
+	}
+	
+	return arq;
+}
+char* executa(int maq, char* entrada, int pos)
+{
+	
+	fgets()
+	while()
+}
 int main()
 {
 	FILE* arq;
 	char in[100];
 	gerarArq();
+	int maq, pos=0;
 	
+	do
+	{
+		printf("Qual maquina deseja simular? ");
+		scanf("%d", &maq);
+		arq = maquina(maq);
+		
+		printf("Informe a entrada[Limite de 20 caracteres]: ");
+		scanf("%s", in);
+		
+		printf("\n\nDeseja entrar com outra maquina [SIM - 1] [NAO - 0]\n");
+		scanf("%d", &maq);
+		
+	}while(maq == 1);
 }
