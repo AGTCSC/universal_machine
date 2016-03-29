@@ -7,7 +7,11 @@ Q0 a  a D a0
 Q0 \0 \0 E a1
 */
 
-
+typedef struct turing
+{
+	int i ,f;
+	char a, b, dir;
+};
 
 void gerarArq()
 {
@@ -58,7 +62,7 @@ void gerarArq()
 	}
 	fclose(arq);	
 }
-FILE* maquina(int maq)
+struct* turing maquina(int maq)
 {
 	FILE* arq;
 	switch(maq)
@@ -75,12 +79,24 @@ FILE* maquina(int maq)
 		break;
 	}
 	
+	fclose(arq);
 	return arq;
 }
-char* executa(int maq, char* entrada, int pos)
+void executa(int maq, char* entrada, int pos)
 {
+	char linha[15];
+	int qnt;
+	struct* turing t;
+	FILE* arq;
+	arq = maquina(maq);
+	fscanf(arq, "%d", qnt);
+	turing = (turing*) malloc (sizeof(turing)*qnt);
 	
-	fgets()
+	while(feof(arq))
+	{
+		sscanf(arq, "%d %c %c %c %d", t.i, t.a, t.b, t.dir, )
+	}
+	linha = fgets(arq);
 	while()
 }
 int main()
