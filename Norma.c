@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 
 /*
@@ -70,6 +69,28 @@ void  X_ADD_Y(int* x, int y)
 		y--;
 	}
 }
+int  X_ADD_Y_USING_Z(int x, int y)
+{
+	int z = 0; //como não sei qual é o valor do registrador não zerei utilizando X_0
+	while(NOT(ETZ(y)))
+	{
+		x++;
+		y--;
+		z++;
+	}
+	X_ADD_Y(&y, z);
+	
+	return x;
+}
+int X_SUB_Y(int x, int y)
+{
+	while(NOT(ETZ(y)))
+	{
+		x--;
+		y--;
+	}
+	return x;
+}
 void X_Y(int* x, int y)
 {
 	while(NOT(ETZ(y)))
@@ -87,7 +108,7 @@ bool X_IGUAL_Y(int x, int y)									//compara dois valores naturais
 	}
 	return ETZ(y);												//caso y seja 0 este é igual a x, pois os dois zeraram 	"ao mesmo tempo"
 }
-int X_MULT_Y(unsigned int x, unsigned int y)
+int X_MULT_Y(int x, int y)
 {
 	int soma=0;
 	while(NOT(ETZ(x)))
@@ -266,18 +287,31 @@ coto MULTR(coto a, coto b)
 }
 coto ADDR(coto a, coto b) //C :=  A + B using C e D
 {
-	coto c = {0, X_ADD_Y(X_MULT_Y(a.num, b.num), X_MULT_Y(a.den, b.num)), X_MULT_Y(a.den, b.den)};
-	
-	
-	
+	coto c = {0, X_ADD_Y_USING_Z(X_MULT_Y(a.num, b.den), X_MULT_Y(a.den, b.num)), X_MULT_Y(a.den, b.den)};	
+	print (c);	
 }
 
+coto SUBR(coto a, coto b) //C :=  A + B using C e D
+{
+	coto c = {0, X_SUB_Y(X_MULT_Y(a.den, b.num),X_MULT_Y(a.num, b.den)), X_MULT_Y(a.den, b.den)};	
+	print (c);	
+}
 
+coto DIVR(coto a, coto b) //C :=  A + B using C e D
+{
+	coto c = {0, X_MULT_Y(a.num, b.den), X_MULT_Y(a.den, b.num)};	
+	print (c);	
+}
+
+int A_IGUAL_B_R(coto a, coto b)
+{
+	return X_IGUAL_Y(X_MULT_Y(a.num, b.den), X_MULT_Y(a.den, b.num));
+}
 int main()
 {
-	coto a = {1, 2, 1};
-	coto b = {0, 3, 1};
-	coto c = MULTR(a, b);
-	
-	print(c);
+	coto a = {0, 6, 4};
+	coto b = {0, 3, 2};
+	//coto c = ADDR(a, b);
+	printf("%d\n", A_IGUAL_B_R(a, b));
+	//print(c);
 }
