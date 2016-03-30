@@ -59,11 +59,11 @@ void gerarArq()
 				"11 C C d 11\n11 1 1 e 12\n12 A 1 e 12\n12 C 1 e 12\n12 @ @ d 13\n13 * * * *", arq)== EOF)
 	{
 		printf("ERRO NA CRIACAO\n");
-		return;
+		return; 
 	}
 	fclose(arq);	
 }
-struct turing* maquina(int maq)
+struct turing* maquina(int maq, int* qnt)
 {
 	FILE* arq;
 	switch(maq)
@@ -80,33 +80,44 @@ struct turing* maquina(int maq)
 		break;
 	}
 	char linha[15];
-	int qnt, i=0;
-	fscanf(arq, "%d", &qnt);
+	int i=0;
+	fscanf(arq, "%d", &(*qnt));
 	
-	printf("%d\n", qnt);
-	struct turing* t = (turing*) malloc (sizeof(turing)*qnt);
+	struct turing* t = (turing*) malloc (sizeof(turing)*(*qnt));
 	
-	while(fscanf(arq, "%d %c %c %c %d", &t[i].i, &t[i].a, &t[i].b, &t[i].dir, &t[i].f) != 0)
-	{				
-		printf("\n%d %c %c %c %d\n", t[i].i, t[i].a, t[i].b, t[i].dir, t[i].f);
-		i++;
-	}
+	while(fscanf(arq, "%d %c %c %c %d", &t[i].i, &t[i].a, &t[i].b, &t[i].dir, &t[i].f) != 0){i++;}
 	
 	fclose(arq);
 	return t;
 }
-void executa(int maq, char* entrada, int pos, turing* t)
+bool executa(int maq, char* entrada, int pos, int atual, turing* t, int qnt)
 {
 	int i=0;
-	
-	while(t[i].a != '*')
+	int j=0;
+	bool flag = true;
+	while(t[i].a != '*' && flag)
 	{
-		while(t[i].i == pos)
-		{
-			
+		while(t[i].i == pos && t[i].a != entrada[atual])
+		{			
 			i++;
 		}
+		if(t[i].a == entrada[atual])
+		{
+			entrada[atual] = t[i].b;
+
+			if(t[i].dir == 'e')
+				atual--;
+			else
+				atual++;
+			pos = t[i].f;
+			for(j=0; j<qnt && j!= t[i].f ; j++);
+			
+			i=j;
+		}
+		else
+			flag = false;
 	}
+	return flag;
 }
 int main()
 {
@@ -114,17 +125,17 @@ int main()
 	turing* t;
 	char in[100];
 	gerarArq();
-	int maq, pos=0;
+	int maq, pos=0, atual = 0, qnt=0;
 	
 	do
 	{
 		printf("Qual maquina deseja simular? ");
 		scanf("%d", &maq);
-		t = maquina(maq);
+		t = maquina(maq, &qnt);
 		
 		printf("Informe a entrada[Limite de 20 caracteres]: ");
 		scanf("%s", in);
-		
+		printf("%d", executa(maq, in, pos, atual, t, qnt));
 		printf("\n\nDeseja entrar com outra maquina [SIM - 1] [NAO - 0]\n");
 		scanf("%d", &maq);
 		
